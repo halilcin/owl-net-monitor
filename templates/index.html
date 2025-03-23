@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Monitor</title>
+    <title>Owl Network Monitor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
     <style>
         
@@ -89,7 +89,19 @@
             animation: fadeIn 0.5s ease-in-out;
         }
 
-      
+    
+         .ether { color: #569cd6; } 
+        .ip { color: #4ec9b0; } 
+        .ipv6 { color: #4ec9b0; } 
+        .tcp { color: #ce9178; } 
+        .udp { color: #b5cea8; } 
+        .dns { color: #dcdcaa; } 
+        .igmp { color: #c586c0; } 
+        .raw { color: #9cdcfe; } 
+        .port { color: #d7ba7d; } 
+        .address { color: #d16969; } 
+
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -139,18 +151,25 @@
     <script>
         var socket = io();
 
-        socket.on("bandwidth_update", function(data) {
-            document.getElementById("upload").innerText = data.upload.toFixed(2);
-            document.getElementById("download").innerText = data.download.toFixed(2);
-        });
+        function colorizePacket(packet) {
+            return packet
+                .replace(/Ether/g, '<span class="ether">Ether</span>')
+                .replace(/(IP|IPv6)/g, '<span class="ip">$1</span>')
+                .replace(/TCP/g, '<span class="tcp">TCP</span>')
+                .replace(/UDP/g, '<span class="udp">UDP</span>')
+                .replace(/DNS/g, '<span class="dns">DNS</span>')
+                .replace(/igmp/g, '<span class="igmp">igmp</span>')
+                .replace(/Raw/g, '<span class="raw">Raw</span>')
+                .replace(/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/g, '<span class="address">$1</span>')
+                .replace(/(:\d+)/g, '<span class="port">$1</span>');
+        }
 
         socket.on("packet_update", function(data) {
             var packetsDiv = document.getElementById("packets");
             var newPacket = document.createElement("p");
-            newPacket.textContent = data.packet;
+            newPacket.innerHTML = colorizePacket(data.packet); // Use innerHTML to render colored text
             packetsDiv.appendChild(newPacket);
 
-         
             packetsDiv.scrollTop = packetsDiv.scrollHeight;
         });
     </script>
