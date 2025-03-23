@@ -1,41 +1,41 @@
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 import psutil
 import time
 from scapy.all import sniff
 import threading
 
-LOG_FILE = "network_log.txt"
+app = Flask(__name__)
+socketio = SocketIO(app)
 
-def log_data(data):
-    with open(LOG_FILE, "a") as f:
-        f.write(data + "\n")
+@app.route("/")
+def index():
+    return render_template("index.html")
 
-def owl_bandwidth(interval=1):
-    print("Monitoring bandwidth usage...")
+
+
+def owl_bandwidth():
     old_stats = psutil.net_io_counters()
 
     while True:
-        time.sleep(interval)
+        time.sleep(1)
         new_stats = psutil.net_io_counters()
 
-        bytes_sent = new_stats.bytes_sent - old_stats.bytes_sent
-        bytes_recv = new_stats.bytes_recv - old_stats.bytes_recv
+        upload_speed = (new_stats.bytes_sent - old_stats.bytes_sent) / 1024  # KB/s
+        download_speed = (new_stats.bytes_recv - old_stats.bytes_recv) / 1024  # KB/s
 
-        log_entry = f"[Bandwidth] Upload: {bytes_sent / 1024:.2f} KB/s | Download: {bytes_recv / 1024:.2f} KB/s"
-        print(log_entry)
-        log_data(log_entry)
+        socketio.emit("bandwidth_update", {"upload": upload_speed, "download": download_speed})
 
         old_stats = new_stats
 
 def packet_handler(packet):
-    log_entry = f"[Packet] {packet.summary()}"
-    print(log_entry)
-    log_data(log_entry)
+    packet_info = packet.summary()
+    socketio.emit("packet_update", {"packet": packet_info})
 
 def start_sniffing():
-    print("Sniffing packets...")
-    sniff(prn=packet_handler, store=False) 
+    sniff(prn=packet_handler, store=False)
 
-
-threading.Thread(target=owl_bandwidth, daemon=True).start()
-
-start_sniffing()
+if __name__ == "__main__":
+    threading.Thread(target=owl_bandwidth, daemon=True).start()
+    threading.Thread(target=start_sniffing, daemon=True).start()
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
