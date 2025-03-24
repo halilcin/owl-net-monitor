@@ -120,6 +120,31 @@
         <p><strong>Upload Speed:</strong> <span id="upload">0</span> KB/s</p>
         <p><strong>Download Speed:</strong> <span id="download">0</span> KB/s</p>
     </div>
+    <h2>Top Talkers</h2>
+    <div id="top_talkers" style="background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); width: 80%; max-width: 800px; text-align: center;">
+        <ul id="talkers_list" style="list-style: none; padding: 0;"></ul>
+    </div>
+
+    <script>
+        var socket = io();
+
+        socket.on("top_talkers_update", function(data) {
+            var talkersList = document.getElementById("talkers_list");
+            talkersList.innerHTML = "";  
+
+            data.top_talkers.forEach(function(talker) {  
+                var listItem = document.createElement("li");
+                listItem.textContent = `${talker[0]} - ${talker[1]} packets`; // ✅ Uses correct tuple structure
+                listItem.style.padding = "5px";
+                listItem.style.fontSize = "1.1rem";
+                listItem.style.color = "#2c3e50";
+                talkersList.appendChild(listItem);
+    });
+});
+
+    </script>
+
+
     <h2>Live Packet Captures</h2>
     <div id="packets"></div>
 
