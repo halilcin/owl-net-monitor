@@ -1,4 +1,6 @@
 import eventlet
+eventlet.monkey_patch()
+
 import psutil
 import time
 from collections import Counter

@@ -132,15 +132,16 @@
             var talkersList = document.getElementById("talkers_list");
             talkersList.innerHTML = "";  
 
-            data.forEach(function(talker) {
+            data.top_talkers.forEach(function(talker) {  
                 var listItem = document.createElement("li");
-                listItem.textContent = `${talker.ip} - ${talker.packets} packets`;
+                listItem.textContent = `${talker[0]} - ${talker[1]} packets`; // ✅ Uses correct tuple structure
                 listItem.style.padding = "5px";
                 listItem.style.fontSize = "1.1rem";
                 listItem.style.color = "#2c3e50";
                 talkersList.appendChild(listItem);
-            });
-        });
+    });
+});
+
     </script>
 
 
