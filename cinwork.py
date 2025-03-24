@@ -22,6 +22,7 @@ def index():
 def owl_bandwidth():
     old_stats = psutil.net_io_counters()
     while True:
+
         socketio.sleep(1)
         new_stats = psutil.net_io_counters()
         upload_speed = (new_stats.bytes_sent - old_stats.bytes_sent) / 1024  # KB/s
